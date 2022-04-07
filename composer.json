@@ -27,7 +27,8 @@
     "phpoffice/phpspreadsheet": "^1.15",
     "trendsoft/laravel-capital": "^0.1.1",
     "tymon/jwt-auth": "^1.0",
-    "ynineteen/easy-ding-talk": "dev-main"
+    "ynineteen/easy-ding-talk": "dev-main",
+    "ynineteen/supports": "^0.0.11"
   },
   "require-dev": {
     "barryvdh/laravel-ide-helper": "^2.8",
