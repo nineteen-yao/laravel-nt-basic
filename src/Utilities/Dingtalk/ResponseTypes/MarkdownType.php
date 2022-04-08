@@ -11,18 +11,24 @@ namespace YLarNtBasic\Utilities\Dingtalk\ResponseTypes;
 
 class MarkdownType extends BaseType
 {
-    protected $data = [
-        'title' => '',
-        'text' => ''
-    ];
+    /*
+     * 报文demo
+{
+    "msgtype": "markdown",
+    "markdown": {
+        "title": "首屏会话透出的展示内容",
+        "text": "# 这是支持markdown的文本   \n   ## 标题2    \n   * 列表1   \n  ![alt 啊](https://img.alicdn.com/tps/TB1XLjqNVXXXXc4XVXXXXXXXXXX-170-64.png)"
+    }
+}
+     */
 
-    public function response($data = null, $at = null)
+    public function set(string $title, string $text): self
     {
-        foreach ($this->data as $key => $val) {
-            if (!isset($data[$key])) {
-                throw new \Exception('数据参数缺少' . $key . '键值', -1);
-            }
-        }
-        return $this->makeBody(array_merge($this->data, $data), $at);
+        $this->data[$this->type] = [
+            'title' => $title,
+            'text' => $text
+        ];
+
+        return $this;
     }
 }

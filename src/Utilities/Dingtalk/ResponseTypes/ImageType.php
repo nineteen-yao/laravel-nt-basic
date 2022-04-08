@@ -1,6 +1,6 @@
 <?php
 /**
- * 返回文本信息响应体
+ * 返回图片信息响应体
  * @author: YaoFei<nineteen.yao@qq.com>
  * Datetime: 2021-03-13 14:43
  */
@@ -9,21 +9,21 @@
 namespace YLarNtBasic\Utilities\Dingtalk\ResponseTypes;
 
 
-class TextType extends BaseType
+class ImageType extends BaseType
 {
     /*
      * 报文demo
 {
-    "msgtype": "text",
-    "text": {
-        "content": "月会通知"
+    "msgtype": "image",
+    "image": {
+        "media_id": "@lADOADmaWMzazQKA"
     }
 }
      */
-    public function set(string $message): self
+    public function set(string $mediaId): self
     {
         $this->data[$this->type] = [
-            'content' => $message
+            'media_id' => $mediaId
         ];
 
         return $this;

@@ -9,29 +9,56 @@
 namespace YLarNtBasic\Utilities\Dingtalk\ResponseTypes;
 
 
+use YLarNtBasic\Utilities\Assistants\Arr;
+
 class FeedCardType extends BaseType
 {
-    protected $data = [
-        'links' => [            //数组，多条记录
-            [
-                'title' => '',
-                'messageURL' => '',
-                'picURL' => ''
-            ]
-            //...
+    /*
+     * 报文demo
+{
+    "feedCard": {
+        "links": [
+            {
+                "title": "A.铁观音",
+                "messageURL": "https://www.baidu.com/",
+                "picURL": "http://118.25.182.23:8051/img/3e8cc4bc-e6ac-4ebc-9ff3-ae005aedb13d.png"
+            },
+            {
+               "title": "B.龙井",
+                "messageURL": "https://www.baidu.com/",
+                "picURL": "http://118.25.182.23:8051/img/3e8cc4bc-e6ac-4ebc-9ff3-ae005aedb13d.png"
+            },
+            {
+               "title": "C.菊花茶",
+                "messageURL": "https://www.baidu.com/",
+                "picURL": "http://118.25.182.23:8051/img/3e8cc4bc-e6ac-4ebc-9ff3-ae005aedb13d.png"
+            },
+            {
+                "title": "D.红茶",
+                "messageURL": "https://www.baidu.com/",
+                "picURL": "http://118.25.182.23:8051/img/3e8cc4bc-e6ac-4ebc-9ff3-ae005aedb13d.png"
+            }
         ]
-    ];
+    },
+    "msgtype": "feedCard"
+}
+     */
 
-    public function response($links = null, $at = null)
+    protected $type = 'feedCard';
+
+    public function set(array $list): self
     {
-        foreach (['title', 'actionURL'] as $val) {
-            foreach ($links as $link) {
-                if (!isset($btn[$val])) {
-                    throw new \Exception('数据参数缺少' . $val . '键值', -1);
-                }
+        foreach ($list as &$item) {
+            $item = Arr::only($item, ['title', 'messageURL', 'picURL']);
+            if (count($item) !== 2) {
+                throw new \Exception('feedCard类型列表数据的每个element的key应包含有title,messageURL,picURL', -1);
             }
         }
-        
-        return $this->makeBody(['links' => $links], $at);
+
+        $this->data[$this->type] = [
+            'links' => $list
+        ];
+
+        return $this;
     }
 }

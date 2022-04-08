@@ -11,8 +11,4 @@ namespace YLarNtBasic\Utilities\Dingtalk\ResponseTypes;
 
 class EmptyType extends BaseType
 {
-    public function response($data = null, $at = null)
-    {
-        return $this->makeBody();
-    }
 }

@@ -9,65 +9,79 @@
 namespace YLarNtBasic\Utilities\Dingtalk\ResponseTypes;
 
 
+use YLarNtBasic\Utilities\Assistants\Arr;
+
 class ActionCardType extends BaseType
 {
-    const TYPE_SINGLE = 1;          //整体跳转模式
-    const TYPE_BTNS = 2;
+    /*
+     * 报文demo
+     * 整体跳转
+{
+    "msgtype": "action_card",
+    "action_card": {
+        "title": "是透出到会话列表和通知的文案",
+        "text": "支持markdown格式的正文内容",
+        "singleTitle": "查看详情",
+        "singleURL": "https://open.dingtalk.com"
+    }
+}
+     * 独立跳转
+{
+    "msgtype": "action_card",
+    "action_card": {
+        "title": "是透出到会话列表和通知的文案",
+        "text": "支持markdown格式的正文内容",
+        "hideAvatar": "0"
+        "btnOrientation": "1",
+        "type": 2,
+        "btns": [
+            {
+                "title": "一个按钮",
+                "actionURL": "https://www.taobao.com"
+            },
+            {
+                "title": "两个按钮",
+                "actionURL": "https://www.tmall.com"
+            }
+        ]
+    }
+}
+    */
 
-    protected $type = self::TYPE_SINGLE;
+    protected $type = 'actionCard';
 
-    protected $data = [
-        'title' => '',
-        'text' => '',
-        'singleTitle' => '',    //整体
-        'singleURL' => '',      //整体
-        'hideAvatar' => '',         //独立跳转
-        'btnOrientation' => '',     //独立跳转
-        'btns' => [                 //独立跳转
-            [
-                'title' => '',      //标题
-                'actionURL' => ''   //跳转地址
-            ],
-            //...
-        ],
-    ];
-
-    public function response($data = null, $at = null)
+    public function setSingle(string $title, string $markdown, string $detailBtnText = '', string $url = ''): self
     {
-        //卡片类型
-        if (!empty($data['type']) && in_array($data['type'], [self::TYPE_SINGLE, self::TYPE_BTNS])) {
-            $this->type = $data['type'];
-        }
+        $this->data[$this->type] = [
+            'title' => $title,
+            'text' => $markdown,
+            'singleTitle' => $detailBtnText,
+            'singleURL' => $url,
+            'type' => 1
+        ];
 
-        unset($data['type']);
+        return $this;
+    }
 
-        //整体模式跳转
-        if ($this->type === self::TYPE_SINGLE) {
-            foreach (['title', 'text', 'singleTitle', 'singleURL'] as $key) {
-                if (!isset($data[$key])) {
-                    throw new \Exception('数据参数缺少' . $key . '键值', -1);
-                }
+    public function setMult(string $title, string $markdown, array $list): self
+    {
+
+        foreach ($list as &$item) {
+            $item = Arr::only($item, ['title', 'actionURL']);
+            if (count($item) !== 2) {
+                throw new \Exception('列表数据的每个element的key应包含有title,actionURL', -1);
             }
         }
 
-        //独立跳转模式
-        if ($this->type === self::TYPE_BTNS) {
-            foreach (['title', 'text', 'hideAvatar', 'btnOrientation', 'btns'] as $key) {
-                if (!isset($data[$key])) {
-                    throw new \Exception('数据参数缺少' . $key . '键值', -1);
-                }
-            }
+        $this->data[$this->type] = [
+            'title' => $title,
+            'text' => $markdown,
+            'hideAvatar' => '0',
+            'btnOrientation' => "1",
+            'type' => 2,
+            'btns' => $list
+        ];
 
-            foreach (['title', 'actionURL'] as $val) {
-                foreach ($data['btns'] as $btn) {
-                    if (!isset($btn[$val])) {
-                        throw new \Exception('数据参数btns子项缺少' . $val . '键值', -1);
-                    }
-                }
-            }
-        }
-
-
-        return $this->makeBody(array_merge($this->data, $data), $at);
+        return $this;
     }
 }
