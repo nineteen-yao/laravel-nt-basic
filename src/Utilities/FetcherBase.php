@@ -36,11 +36,11 @@ abstract class FetcherBase
     protected $httpClient;
 
     protected $config = [
-        'timeout' => 5
+        //请求超时时间
+        'timeout' => 5,
+        //请求的时候，是否需要上锁
+        'lock' => false
     ];
-
-    //请求的时候，是否需要上锁
-    protected $httpLock = false;
 
     /**
      *
@@ -66,10 +66,9 @@ abstract class FetcherBase
         return $this;
     }
 
-    public function login(): bool
+    public function login()
     {
         //继承重写实现,这只是打个桩而已
-        return true;
     }
 
     /**
