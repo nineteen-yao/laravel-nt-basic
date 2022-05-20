@@ -10,7 +10,6 @@ namespace YLarNtBasic\Console;
 
 
 use Ynineteen\Supports\Logger;
-use const App\Console\Commands\PHP_EOL;
 
 trait ErrorTrait
 {
