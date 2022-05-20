@@ -15,9 +15,9 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface;
+use YLarNtBasic\Utilities\Assistants\Arr;
 use Ynineteen\Supports\DTime;
 use Ynineteen\Supports\Logger;
-use function config;
 
 abstract class FetcherBase
 {
@@ -34,12 +34,10 @@ abstract class FetcherBase
      * @var Client $httpClient
      */
     protected $httpClient;
-    protected $config = [];
-    protected $loginName;
-    protected $loginPassword;
-    protected $apis = [];
 
-    protected $timeout = 5;
+    protected $config = [
+        'timeout' => 5
+    ];
 
     //请求的时候，是否需要上锁
     protected $httpLock = false;
@@ -58,35 +56,14 @@ abstract class FetcherBase
 
         $this->setConfig($config);
 
-        $httpConfig = [
-            'timeout' => $this->timeout
-        ];
-        if (!empty($this->config['base_uri'])) {
-            $httpConfig['base_uri'] = $this->config['base_uri'];
-        }
-        $this->httpClient = new Client($httpConfig);
+        $options = Arr::only($this->config, ['timeout', 'base_uri']);
+        $this->httpClient = new Client($options);
     }
 
-    protected function setConfig($config): void
+    public function setConfig(array $config): self
     {
-        if ($config === null) {
-            return;
-        }
-
-        $defaults = config('services.' . $this->appKey, []);
-        if (empty($defaults) && empty($config)) {
-            throw new \Exception('缺少配置信息:' . $this->appKey, -1);
-        }
-
-        $this->config = array_merge_recursive($defaults, $config);
-        $this->apis = (!empty($this->config['apis']) ? $this->config['apis'] : []);
-        $this->httpLock = ($this->config['lock'] ?? false);
-        if (!empty($this->config['login_data']['name'])) {
-            $this->loginName = $this->config['login_data']['name'];
-        }
-        if (!empty($this->config['login_data']['pwd'])) {
-            $this->loginPassword = $this->config['login_data']['pwd'];
-        }
+        $this->config = array_merge($this->config, $config);
+        return $this;
     }
 
     public function login(): bool
@@ -424,23 +401,48 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
 
     /**
      * 查找匹配的内容
-     *
-     * @param string $startIdentity
-     * @param string $endIdentity
-     * @param string $pattern
      * @param string $contents
+     * @param string $pattern
+     * @param string $startIdentifier
+     * @param string $endIdentitifier
      * @return array
      */
-    public function matchContents(string $contents, string $pattern, string $startIdentity = '', string $endIdentity = ''): array
+    public static function matchAll(string $contents, string $pattern, string $startIdentifier = '', string $endIdentitifier = ''): array
     {
-        $divideOffset = empty($startIdentity) ? 0 : strpos($contents, $startIdentity);
-        $end = empty($endIdentity) ? strlen($contents) : strpos($contents, $endIdentity, $divideOffset);
-        $areaContents = substr($contents, $divideOffset, $end - $divideOffset);
+        $areaContents = static::between($contents, $startIdentifier, $endIdentitifier);
 
         if (preg_match_all($pattern, $areaContents, $parentMatches)) {
             return $parentMatches;
         }
         return [];
+    }
+
+    /**
+     * 选取匹配的区间字符串
+     * @param string $contents
+     * @param string $startIdentifier
+     * @param string $endIdentitifier
+     * @return string
+     */
+    public static function between(string $contents, string $startIdentifier, string $endIdentitifier): string
+    {
+        $startIdentifier = trim($startIdentifier);
+        $endIdentitifier = trim($endIdentitifier);
+        if ($startIdentifier === '') {
+            return $contents;
+        }
+
+        $startIndex = strpos($contents, $startIdentifier);
+        if ($startIndex === false) {
+            return $contents;
+        }
+
+        $endIndex = strpos($contents, $endIdentitifier, $startIndex);
+        if ($endIndex === false) {
+            return substr($contents, $startIndex);
+        }
+
+        return substr($contents, $startIndex, $endIndex - $startIndex);
     }
 
     /**
