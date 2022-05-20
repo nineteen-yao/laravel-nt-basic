@@ -69,7 +69,11 @@ abstract class FetcherBase
 
     protected function setConfig($config): void
     {
-        $defaults = config('fetch.' . $this->appKey, []);
+        if ($config === null) {
+            return;
+        }
+
+        $defaults = config('services.' . $this->appKey, []);
         if (empty($defaults) && empty($config)) {
             throw new \Exception('缺少配置信息:' . $this->appKey, -1);
         }
@@ -93,6 +97,7 @@ abstract class FetcherBase
 
     /**
      * 统一抓取数据方法
+     *
      * @param string $method
      * @param string $uri
      * @param array $options
@@ -172,6 +177,7 @@ abstract class FetcherBase
         //cookie解析
         $cookies = [];
         $expires = [];
+        //当$items不为空的时候，设置有效时间存储
         foreach ($items as $k => $cookieStr) {
             //已经切割好的，原值返回
             if (!is_string($cookieStr)) {
@@ -222,7 +228,8 @@ abstract class FetcherBase
 
             Cache::set($cacheKey, json_encode([
                 'data' => $cookies,
-                'expires' => $minExpires
+                'expires' => $minExpires,
+                'time' => DTime::getTimestamp(DTime::tomorrow())
             ], JSON_UNESCAPED_UNICODE));
 
             return $cookies;
@@ -236,6 +243,11 @@ abstract class FetcherBase
             return $items;
         }
         $cacheData = json_decode($cacheStr, true);
+        //不是当日生成的cookie，直接失效
+        if (DTime::time() > ($cacheData['time'] ?? 0)) {
+            return $items;
+        }
+
         //cookie差30分钟就过期，直接失败
         if ((DTime::time() + 1800) > $cacheData['expires']) {
             return $items;
@@ -275,7 +287,7 @@ abstract class FetcherBase
         }
         $cookies = $this->cookies();
         if (empty($cookies)) {
-            return false;
+            throw new \Exception('cookie已失效', -1);
         }
 
         $jars = [];
