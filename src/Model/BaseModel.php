@@ -151,6 +151,7 @@ abstract class BaseModel extends Model
             if ($reject !== null) {
                 $reject();
             }
+
             static::transactionRollback($throwable);
         }
     }
