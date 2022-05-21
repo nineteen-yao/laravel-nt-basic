@@ -6,13 +6,12 @@
 
 namespace YLarNtBasic\Model;
 
-use App\Logic\Common\Components\Config;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+use Throwable;
 use YLarNtBasic\Utilities\Assistants\Url;
 use Ynineteen\Supports\Logger;
 use function class_basename;
@@ -99,7 +98,7 @@ abstract class BaseModel extends Model
     /**
      * 事务开始
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public static function transactionStart()
     {
@@ -109,7 +108,7 @@ abstract class BaseModel extends Model
     /**
      * 事务提交
      *
-     * @throws \Throwable
+     * @throws Throwable
      */
     public static function transactionCommit()
     {
@@ -119,36 +118,40 @@ abstract class BaseModel extends Model
     /**
      * 事务回滚并且处理异常
      *
-     * @param \Throwable|null $throwable
-     * @throws \Throwable
+     * @param Throwable|null $throwable
+     * @throws Throwable
      */
-    public static function transactionRollback(\Throwable $throwable = null)
+    public static function transactionRollback(Throwable $throwable = null)
     {
         static::db()->rollBack();
 
         if ($throwable) {
-            throw new \Exception($throwable->getMessage(), $throwable->getCode());
+            throw new \Exception($throwable->getMessage(), (int)$throwable->getCode());
         }
     }
 
     /**
      * 开启简单的标准事务流
      *
-     * @param callable $callable 一个不带参数的匿名函数
+     * @param callable $resolve 执行匿名函数，一个不带参数的匿名函数
+     * @param callable|null $reject 出错执行匿名函数
      * @return mixed
-     * @throws \Throwable
+     * @throws Throwable
      */
-    public static function transactionFlow(callable $callable)
+    public static function transactionFlow(callable $resolve, callable $reject = null)
     {
         static::transactionStart();
         try {
-            $r = $callable();
+            $r = $resolve();
 
             static::transactionCommit();
 
             return $r;
-        } catch (\Throwable $throwable) {
+        } catch (Throwable $throwable) {
             static::transactionRollback($throwable);
+            if ($reject !== null) {
+                $reject();
+            }
         }
     }
 
@@ -307,7 +310,7 @@ abstract class BaseModel extends Model
 
         return $value;
     }
-    
+
     /**
      * 添加记录
      *
