@@ -28,7 +28,11 @@ trait ErrorTrait
     protected function puts(...$args)
     {
         foreach ($args as $arg) {
-            echo json_encode($arg, JSON_UNESCAPED_UNICODE) . PHP_EOL;
+            if (is_array($arg) || is_object($arg)) {
+                echo json_encode($arg, JSON_UNESCAPED_UNICODE) . PHP_EOL;
+            } else {
+                echo $arg . PHP_EOL;
+            }
         }
     }
 }
