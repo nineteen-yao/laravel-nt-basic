@@ -445,6 +445,28 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
     }
 
     /**
+     * 获取一个文件后缀名
+     *
+     * @param string $filename
+     * @return string
+     */
+    public static function extension(string $filename): string
+    {
+        return trim(strrchr($filename, '.'), '.');
+    }
+
+    /**
+     * 将格式化的数字字符串，转化为数字
+     * demo：12,000 --> 12000
+     * @param string $formatNumber
+     * @return int
+     */
+    public static function toNumber(string $formatNumber): int
+    {
+        return intval(str_replace([',', '，'], '', $formatNumber));
+    }
+
+    /**
      * 报错处理
      *
      * @param array|string $return 内容
@@ -453,16 +475,5 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
     public function error($return, bool $jsonToArray = false)
     {
         //继承重写实现,这只是打个桩而已
-    }
-
-    /**
-     * 获取一个文件后缀名
-     *
-     * @param string $filename
-     * @return string
-     */
-    public static function parseExt(string $filename): string
-    {
-        return trim(strrchr($filename, '.'), '.');
     }
 }
