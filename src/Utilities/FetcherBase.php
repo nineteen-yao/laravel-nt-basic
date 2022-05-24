@@ -422,23 +422,25 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
      * @param string $startIdentifier
      * @param string $endIdentitifier
      * @return string
+     * @throws \Exception
      */
     public static function between(string $contents, string $startIdentifier, string $endIdentitifier): string
     {
         $startIdentifier = trim($startIdentifier);
         $endIdentitifier = trim($endIdentitifier);
-        if ($startIdentifier === '') {
-            return $contents;
+
+        if (empty($startIdentifier) || empty($endIdentitifier)) {
+            throw new \Exception('开始结束标记符不能为空，start:' . $startIdentifier . '，end:' . $endIdentitifier, -1);
         }
 
         $startIndex = strpos($contents, $startIdentifier);
         if ($startIndex === false) {
-            return $contents;
+            return '';
         }
 
         $endIndex = strpos($contents, $endIdentitifier, $startIndex);
         if ($endIndex === false) {
-            return substr($contents, $startIndex);
+            return '';
         }
 
         return substr($contents, $startIndex, $endIndex - $startIndex);
