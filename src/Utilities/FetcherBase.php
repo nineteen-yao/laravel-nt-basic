@@ -408,7 +408,12 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
      */
     public static function matchAll(string $contents, string $pattern, string $startIdentifier = '', string $endIdentitifier = ''): array
     {
-        $areaContents = static::between($contents, $startIdentifier, $endIdentitifier);
+        if ($startIdentifier && $endIdentitifier) {
+            $areaContents = static::between($contents, $startIdentifier, $endIdentitifier);
+        } else {
+            $areaContents = $contents;
+        }
+
 
         if (preg_match_all($pattern, $areaContents, $parentMatches)) {
             return $parentMatches;
