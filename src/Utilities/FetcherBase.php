@@ -346,7 +346,7 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
     public static function strToMap(string $str): array
     {
         $map = [];
-        foreach (explode(PHP_EOL, trim($str)) as $line) {
+        foreach (explode("\n", trim($str)) as $line) {
             $line = trim($line);
             if (empty($line)) {
                 continue;

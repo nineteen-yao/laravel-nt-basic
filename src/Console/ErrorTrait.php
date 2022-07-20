@@ -22,16 +22,16 @@ trait ErrorTrait
         if ($extra) {
             echo json_encode($extra, JSON_UNESCAPED_UNICODE);
         }
-        echo $t->getMessage() . '-->' . $t->getFile() . '(' . $t->getLine() . ')' . PHP_EOL;
+        echo $t->getMessage() . '-->' . $t->getFile() . '(' . $t->getLine() . ')' . "\n";
     }
 
     protected function puts(...$args)
     {
         foreach ($args as $arg) {
             if (is_array($arg) || is_object($arg)) {
-                echo json_encode($arg, JSON_UNESCAPED_UNICODE) . PHP_EOL;
+                echo json_encode($arg, JSON_UNESCAPED_UNICODE) . "\n";
             } else {
-                echo $arg . PHP_EOL;
+                echo $arg . "\n";
             }
         }
     }
