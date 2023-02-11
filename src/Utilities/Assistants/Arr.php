@@ -161,4 +161,26 @@ class Arr extends \Illuminate\Support\Arr
 
         return $result;
     }
+	
+    /**
+     * 将键值对转化未列表
+     * eg: [1=>'张山',2=>'李四'] ---> [['id'=>1,'name'=>'张三'],['id'=>2,'name'=>'李四'],]
+     *
+     * @param array $dict   键值对数组
+     * @param array $fields 列表元素字段设置
+     *
+     * @return array
+     */
+    public static function dict2List(array $dict, array $fields = ['id', 'name']): array
+    {
+        $res = [];
+        foreach ($dict as $id => $name) {
+            $res[] = [
+                $fields[0] => $id,
+                $fields[1] => $name
+            ];
+        }
+
+        return $res;
+    }
 }
